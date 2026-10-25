@@ -4,6 +4,8 @@
 
 ## 使用网页版
 
+[在线使用计算器](https://chasonly.github.io/position-calculator/)
+
 下载本仓库（Code → Download ZIP），解压后用浏览器打开 `股票与期货仓位计算器.html`。
 手动输入价格即可计算；代码检索和行情刷新需要网络，能否访问取决于行情服务及浏览器限制。
 
@@ -12,6 +14,8 @@
 ## Android 版
 
 当前源码版本为 **1.4.1**，支持 Android 8.0 及以上。支持本地自动保存、原生行情请求、系统分享与 CSV 导出。
+
+[下载 v1.4.1 APK](https://github.com/chasonly/position-calculator/releases/download/v1.4.1/position-calculator-1.4.1-release.apk) · [版本说明与校验文件](https://github.com/chasonly/position-calculator/releases/tag/v1.4.1)
 
 构建与实现说明见 [Android 项目说明](android-app/README.md)。本仓库不包含预编译 APK、Android SDK 或私有签名材料。
 构建需要自行准备 JDK 和 Android SDK，并按 `android-app/build.ps1` 使用的路径放置工具。
