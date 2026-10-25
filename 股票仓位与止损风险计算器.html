@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>股票仓位与止损风险计算器</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background: #f3f5f7;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            margin-bottom: 24px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .card {
+            padding: 24px;
+            margin-bottom: 22px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .step-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-item small {
+            display: block;
+            margin-top: 7px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cfd8e3;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #ffffff;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .primary-button {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary-button {
+            background: #e8edf3;
+            color: #1f2937;
+        }
+
+        .secondary-button:hover {
+            background: #dce3eb;
+        }
+
+        .export-button {
+            background: #15803d;
+            color: #ffffff;
+        }
+
+        .export-button:hover {
+            background: #166534;
+        }
+
+        .danger-button {
+            background: #c83b34;
+            color: #ffffff;
+        }
+
+        .danger-button:hover {
+            background: #ab2d27;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1450px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px 10px;
+            border: 1px solid #d8dee7;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #edf2f7;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        td input {
+            min-width: 115px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+            gap: 14px;
+        }
+
+        .summary-item {
+            padding: 16px;
+            background: #f5f7fa;
+            border-radius: 10px;
+        }
+
+        .summary-label {
+            margin-bottom: 7px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .summary-value {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #15803d;
+        }
+
+        .negative {
+            color: #c62828;
+        }
+
+        .warning {
+            margin-top: 16px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #fff4e5;
+            color: #a65000;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .formula-box {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-left: 4px solid #2563eb;
+            background: #eff6ff;
+            color: #374151;
+            line-height: 1.9;
+        }
+
+        .risk-low {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .risk-high {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>股票仓位与止损风险计算器</h1>
+
+    <div class="subtitle">
+        按资金比例平均分配仓位，并根据止损价格统计实际风险
+    </div>
+
+    <!-- 第一步：账户设置 -->
+    <div class="card">
+
+        <h2 class="step-title">
+            <span class="step-number">1</span>
+            账户设置
+        </h2>
+
+        <div class="form-grid">
+
+            <div class="form-item">
+
+                <label for="openDateTime">
+                    开仓日期时间
+                </label>
+
+                <input
+                    id="openDateTime"
+                    type="datetime-local"
+                >
+
+                <small>
+                    页面打开时自动识别当前系统日期和时间，也可以手动修改。
+                </small>
+
+            </div>
+
+            <div class="form-item">
+
+                <label for="accountBalance">
+                    账户总资金
+                </label>
+
+                <input
+                    id="accountBalance"
+                    type="number"
+                    value="1000000"
+                    min="0"
+                    step="0.01"
+                >
+
+                <small>
+                    输入账户当前总资金。
+                </small>
+
+            </div>
+
+            <div class="form-item">
+
+                <label for="allocationPercent">
+                    计划使用资金比例（%）
+                </label>
+
+                <input
+                    id="allocationPercent"
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                >
+
+                <small>
+                    例如填写 10，表示使用账户总资金的 10% 买入股票。
+                </small>
+
+            </div>
+
+            <div class="form-item">
+
+                <label for="lotSize">
+                    最小交易单位
+                </label>
+
+                <select id="lotSize">
+
+                    <option value="1">
+                        1股
+                    </option>
+
+                    <option value="100" selected>
+                        100股一手
+                    </option>
+
+                </select>
+
+                <small>
+                    A股买入通常按 100 股一手计算。
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="formula-box">
+
+            仓位计算：
+
+            <br>
+
+            计划使用资金 =
+            账户总资金 × 计划使用资金比例
+
+            <br>
+
+            每只股票分配资金 =
+            计划使用资金 ÷ 股票数量
+
+            <br><br>
+
+            风险计算：
+
+            <br>
+
+            止损幅度 =
+            （买入价格 − 止损价格）÷ 买入价格
+
+            <br>
+
+            预计最大亏损 =
+            实际可买股数 ×（买入价格 − 止损价格）
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="primary-button"
+                onclick="calculatePositions()"
+            >
+                计算仓位
+            </button>
+
+            <button
+                class="secondary-button"
+                onclick="addStockRow()"
+            >
+                添加股票
+            </button>
+
+            <button
+                class="export-button"
+                onclick="exportToExcel()"
+            >
+                导出Excel
+            </button>
+
+            <button
+                class="danger-button"
+                onclick="resetCalculator()"
+            >
+                重置
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- 第二步：股票信息 -->
+    <div class="card">
+
+        <h2 class="step-title">
+            <span class="step-number">2</span>
+            股票信息
+        </h2>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+                    <th>股票名称</th>
+                    <th>买入价格</th>
+                    <th>止损价格</th>
+                    <th>止损幅度</th>
+                    <th>分配资金</th>
+                    <th>理论股数</th>
+                    <th>实际可买股数</th>
+                    <th>实际买入金额</th>
+                    <th>未使用资金</th>
+                    <th>预计最大亏损</th>
+                    <th>账户风险占比</th>
+                    <th>操作</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="stockTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+        <div
+            id="warningMessage"
+            class="warning hidden"
+        ></div>
+
+    </div>
+
+    <!-- 第三步：结果汇总 -->
+    <div class="card">
+
+        <h2 class="step-title">
+            <span class="step-number">3</span>
+            计算结果汇总
+        </h2>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    开仓日期时间
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="summaryOpenDateTime"
+                >
+                    -
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    账户总资金
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="summaryAccountBalance"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    计划使用资金
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="plannedCapital"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    每只股票计划分配
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="capitalPerStock"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    实际买入金额
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="actualCapital"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    计划资金剩余
+                </div>
+
+                <div
+                    class="summary-value positive"
+                    id="plannedRemainingCapital"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    账户剩余资金
+                </div>
+
+                <div
+                    class="summary-value positive"
+                    id="accountRemainingCapital"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    实际仓位比例
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="actualPositionPercent"
+                >
+                    0.00%
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    总预计最大亏损
+                </div>
+
+                <div
+                    class="summary-value negative"
+                    id="totalRiskAmount"
+                >
+                    0.00
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    账户总风险比例
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="totalRiskPercent"
+                >
+                    0.00%
+                </div>
+
+            </div>
+
+            <div class="summary-item">
+
+                <div class="summary-label">
+                    持仓资金风险比例
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="positionRiskPercent"
+                >
+                    0.00%
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const defaultStocks = [
+        {
+            name: "股票1",
+            buyPrice: 50,
+            stopPrice: 49
+        },
+        {
+            name: "股票2",
+            buyPrice: 70,
+            stopPrice: 68.6
+        },
+        {
+            name: "股票3",
+            buyPrice: 60,
+            stopPrice: 58.8
+        },
+        {
+            name: "股票4",
+            buyPrice: 15,
+            stopPrice: 14.7
+        },
+        {
+            name: "股票5",
+            buyPrice: 5,
+            stopPrice: 4.9
+        }
+    ];
+
+    function getNumber(elementId) {
+        const value = Number(
+            document.getElementById(elementId).value
+        );
+
+        return Number.isFinite(value)
+            ? value
+            : 0;
+    }
+
+    function formatMoney(value) {
+        return Number(value).toLocaleString(
+            "zh-CN",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+    function padNumber(value) {
+        return String(value).padStart(2, "0");
+    }
+
+    function getCurrentDateTimeForInput() {
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = padNumber(now.getMonth() + 1);
+        const day = padNumber(now.getDate());
+        const hours = padNumber(now.getHours());
+        const minutes = padNumber(now.getMinutes());
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function getReadableDateTime(value) {
+        if (!value) {
+            return "";
+        }
+
+        return value.replace("T", " ");
+    }
+
+    function floorToLotSize(shares, lotSize) {
+        if (lotSize <= 0) {
+            return 0;
+        }
+
+        return Math.floor(shares / lotSize) * lotSize;
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function createStockRow(stock = {}) {
+        const tbody = document.getElementById(
+            "stockTableBody"
+        );
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <input
+                    class="stock-name"
+                    type="text"
+                    value="${escapeHtml(stock.name ?? "")}"
+                >
+            </td>
+
+            <td>
+                <input
+                    class="buy-price"
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value="${stock.buyPrice ?? ""}"
+                >
+            </td>
+
+            <td>
+                <input
+                    class="stop-price"
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value="${stock.stopPrice ?? ""}"
+                >
+            </td>
+
+            <td class="stop-percent">
+                0.00%
+            </td>
+
+            <td class="allocated-capital">
+                0.00
+            </td>
+
+            <td class="theoretical-shares">
+                0.00
+            </td>
+
+            <td class="actual-shares">
+                0
+            </td>
+
+            <td class="actual-position">
+                0.00
+            </td>
+
+            <td class="unused-capital">
+                0.00
+            </td>
+
+            <td class="risk-amount">
+                0.00
+            </td>
+
+            <td class="account-risk-percent">
+                0.000%
+            </td>
+
+            <td>
+                <button
+                    class="danger-button"
+                    onclick="removeStockRow(this)"
+                >
+                    删除
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+
+        row.querySelectorAll("input").forEach(input => {
+            input.addEventListener(
+                "input",
+                calculatePositions
+            );
+        });
+    }
+
+    function addStockRow() {
+        const count = document.querySelectorAll(
+            "#stockTableBody tr"
+        ).length;
+
+        createStockRow({
+            name: `股票${count + 1}`,
+            buyPrice: "",
+            stopPrice: ""
+        });
+
+        calculatePositions();
+    }
+
+    function removeStockRow(button) {
+        button.closest("tr").remove();
+
+        calculatePositions();
+    }
+
+    function setRiskClass(element, riskPercent) {
+        element.classList.remove(
+            "risk-low",
+            "risk-medium",
+            "risk-high"
+        );
+
+        if (riskPercent < 0.5) {
+            element.classList.add("risk-low");
+        } else if (riskPercent < 1) {
+            element.classList.add("risk-medium");
+        } else {
+            element.classList.add("risk-high");
+        }
+    }
+
+    function calculatePositions() {
+        const openDateTime = getReadableDateTime(
+            document.getElementById("openDateTime").value
+        );
+
+        const accountBalance = getNumber(
+            "accountBalance"
+        );
+
+        const allocationPercent = getNumber(
+            "allocationPercent"
+        );
+
+        const lotSize = getNumber(
+            "lotSize"
+        );
+
+        const rows = Array.from(
+            document.querySelectorAll(
+                "#stockTableBody tr"
+            )
+        );
+
+        const warning = document.getElementById(
+            "warningMessage"
+        );
+
+        warning.textContent = "";
+        warning.classList.add("hidden");
+
+        document.getElementById(
+            "summaryOpenDateTime"
+        ).textContent = openDateTime || "-";
+
+        if (accountBalance <= 0) {
+            showWarning(
+                "账户总资金必须大于0。"
+            );
+
+            clearResults();
+
+            return;
+        }
+
+        if (
+            allocationPercent <= 0 ||
+            allocationPercent > 100
+        ) {
+            showWarning(
+                "计划使用资金比例必须大于0且不超过100%。"
+            );
+
+            clearResults();
+
+            return;
+        }
+
+        if (rows.length === 0) {
+            showWarning(
+                "请至少添加一只股票。"
+            );
+
+            clearResults();
+
+            return;
+        }
+
+        if (lotSize <= 0) {
+            showWarning(
+                "最小交易单位必须大于0。"
+            );
+
+            clearResults();
+
+            return;
+        }
+
+        const plannedCapital =
+            accountBalance *
+            allocationPercent /
+            100;
+
+        const allocatedCapitalPerStock =
+            plannedCapital /
+            rows.length;
+
+        let totalActualCapital = 0;
+        let totalRiskAmount = 0;
+
+        let invalidBuyPriceCount = 0;
+        let invalidStopPriceCount = 0;
+
+        rows.forEach(row => {
+            const buyPrice = Number(
+                row.querySelector(
+                    ".buy-price"
+                ).value
+            );
+
+            const stopPrice = Number(
+                row.querySelector(
+                    ".stop-price"
+                ).value
+            );
+
+            let theoreticalShares = 0;
+            let actualShares = 0;
+            let actualPosition = 0;
+            let unusedCapital = allocatedCapitalPerStock;
+
+            let stopPercent = 0;
+            let riskAmount = 0;
+            let accountRiskPercent = 0;
+
+            const validBuyPrice =
+                Number.isFinite(buyPrice) &&
+                buyPrice > 0;
+
+            const validStopPrice =
+                Number.isFinite(stopPrice) &&
+                stopPrice >= 0 &&
+                validBuyPrice &&
+                stopPrice < buyPrice;
+
+            if (validBuyPrice) {
+                theoreticalShares =
+                    allocatedCapitalPerStock /
+                    buyPrice;
+
+                actualShares =
+                    floorToLotSize(
+                        theoreticalShares,
+                        lotSize
+                    );
+
+                actualPosition =
+                    actualShares *
+                    buyPrice;
+
+                unusedCapital =
+                    allocatedCapitalPerStock -
+                    actualPosition;
+            } else {
+                invalidBuyPriceCount++;
+            }
+
+            if (validStopPrice && actualShares > 0) {
+                const perShareRisk =
+                    buyPrice - stopPrice;
+
+                stopPercent =
+                    perShareRisk /
+                    buyPrice *
+                    100;
+
+                riskAmount =
+                    actualShares *
+                    perShareRisk;
+
+                accountRiskPercent =
+                    riskAmount /
+                    accountBalance *
+                    100;
+            } else if (validBuyPrice) {
+                invalidStopPriceCount++;
+            }
+
+            row.querySelector(
+                ".stop-percent"
+            ).textContent =
+                `${stopPercent.toFixed(2)}%`;
+
+            row.querySelector(
+                ".allocated-capital"
+            ).textContent =
+                formatMoney(
+                    allocatedCapitalPerStock
+                );
+
+            row.querySelector(
+                ".theoretical-shares"
+            ).textContent =
+                theoreticalShares.toFixed(2);
+
+            row.querySelector(
+                ".actual-shares"
+            ).textContent =
+                actualShares.toFixed(0);
+
+            row.querySelector(
+                ".actual-position"
+            ).textContent =
+                formatMoney(
+                    actualPosition
+                );
+
+            row.querySelector(
+                ".unused-capital"
+            ).textContent =
+                formatMoney(
+                    unusedCapital
+                );
+
+            row.querySelector(
+                ".risk-amount"
+            ).textContent =
+                formatMoney(
+                    riskAmount
+                );
+
+            const riskPercentElement =
+                row.querySelector(
+                    ".account-risk-percent"
+                );
+
+            riskPercentElement.textContent =
+                `${accountRiskPercent.toFixed(3)}%`;
+
+            setRiskClass(
+                riskPercentElement,
+                accountRiskPercent
+            );
+
+            totalActualCapital +=
+                actualPosition;
+
+            totalRiskAmount +=
+                riskAmount;
+        });
+
+        const plannedRemainingCapital =
+            plannedCapital -
+            totalActualCapital;
+
+        const accountRemainingCapital =
+            accountBalance -
+            totalActualCapital;
+
+        const actualPositionPercent =
+            accountBalance > 0
+                ? totalActualCapital /
+                  accountBalance *
+                  100
+                : 0;
+
+        const totalRiskPercent =
+            accountBalance > 0
+                ? totalRiskAmount /
+                  accountBalance *
+                  100
+                : 0;
+
+        const positionRiskPercent =
+            totalActualCapital > 0
+                ? totalRiskAmount /
+                  totalActualCapital *
+                  100
+                : 0;
+
+        document.getElementById(
+            "summaryAccountBalance"
+        ).textContent =
+            formatMoney(accountBalance);
+
+        document.getElementById(
+            "plannedCapital"
+        ).textContent =
+            formatMoney(plannedCapital);
+
+        document.getElementById(
+            "capitalPerStock"
+        ).textContent =
+            formatMoney(
+                allocatedCapitalPerStock
+            );
+
+        document.getElementById(
+            "actualCapital"
+        ).textContent =
+            formatMoney(
+                totalActualCapital
+            );
+
+        document.getElementById(
+            "plannedRemainingCapital"
+        ).textContent =
+            formatMoney(
+                plannedRemainingCapital
+            );
+
+        document.getElementById(
+            "accountRemainingCapital"
+        ).textContent =
+            formatMoney(
+                accountRemainingCapital
+            );
+
+        document.getElementById(
+            "actualPositionPercent"
+        ).textContent =
+            `${actualPositionPercent.toFixed(3)}%`;
+
+        document.getElementById(
+            "totalRiskAmount"
+        ).textContent =
+            formatMoney(totalRiskAmount);
+
+        const totalRiskElement =
+            document.getElementById(
+                "totalRiskPercent"
+            );
+
+        totalRiskElement.textContent =
+            `${totalRiskPercent.toFixed(3)}%`;
+
+        setRiskClass(
+            totalRiskElement,
+            totalRiskPercent
+        );
+
+        document.getElementById(
+            "positionRiskPercent"
+        ).textContent =
+            `${positionRiskPercent.toFixed(2)}%`;
+
+        const warnings = [];
+
+        if (invalidBuyPriceCount > 0) {
+            warnings.push(
+                `有${invalidBuyPriceCount}只股票的买入价格无效。`
+            );
+        }
+
+        if (invalidStopPriceCount > 0) {
+            warnings.push(
+                `有${invalidStopPriceCount}只股票的止损价格无效，止损价必须小于买入价。`
+            );
+        }
+
+        if (totalRiskPercent >= 5) {
+            warnings.push(
+                "当前组合总风险达到或超过账户资金的5%，请检查止损距离。"
+            );
+        }
+
+        if (warnings.length > 0) {
+            showWarning(
+                warnings.join(" ")
+            );
+        }
+    }
+
+    function showWarning(message) {
+        const warning = document.getElementById(
+            "warningMessage"
+        );
+
+        warning.textContent = message;
+        warning.classList.remove("hidden");
+    }
+
+    function clearResults() {
+        const resultIds = [
+            "summaryAccountBalance",
+            "plannedCapital",
+            "capitalPerStock",
+            "actualCapital",
+            "plannedRemainingCapital",
+            "accountRemainingCapital",
+            "totalRiskAmount"
+        ];
+
+        resultIds.forEach(id => {
+            document.getElementById(
+                id
+            ).textContent = "0.00";
+        });
+
+        document.getElementById(
+            "actualPositionPercent"
+        ).textContent = "0.00%";
+
+        document.getElementById(
+            "totalRiskPercent"
+        ).textContent = "0.00%";
+
+        document.getElementById(
+            "positionRiskPercent"
+        ).textContent = "0.00%";
+    }
+
+    function exportToExcel() {
+        calculatePositions();
+
+        const openDateTime =
+            getReadableDateTime(
+                document.getElementById("openDateTime").value
+            );
+
+        const accountBalance = getNumber("accountBalance");
+        const allocationPercent = getNumber("allocationPercent");
+        const lotSize = getNumber("lotSize");
+
+        const plannedCapitalText =
+            document.getElementById("plannedCapital").textContent;
+
+        const capitalPerStockText =
+            document.getElementById("capitalPerStock").textContent;
+
+        const actualCapitalText =
+            document.getElementById("actualCapital").textContent;
+
+        const plannedRemainingCapitalText =
+            document.getElementById("plannedRemainingCapital").textContent;
+
+        const accountRemainingCapitalText =
+            document.getElementById("accountRemainingCapital").textContent;
+
+        const actualPositionPercentText =
+            document.getElementById("actualPositionPercent").textContent;
+
+        const totalRiskAmountText =
+            document.getElementById("totalRiskAmount").textContent;
+
+        const totalRiskPercentText =
+            document.getElementById("totalRiskPercent").textContent;
+
+        const positionRiskPercentText =
+            document.getElementById("positionRiskPercent").textContent;
+
+        const rows = Array.from(
+            document.querySelectorAll("#stockTableBody tr")
+        );
+
+        const csvRows = [];
+
+        csvRows.push(["股票仓位与止损风险计算表"]);
+        csvRows.push([]);
+
+        csvRows.push(["账户设置"]);
+        csvRows.push(["开仓日期时间", openDateTime]);
+        csvRows.push(["账户总资金", accountBalance]);
+        csvRows.push(["计划使用资金比例", allocationPercent + "%"]);
+        csvRows.push(["最小交易单位", lotSize + "股"]);
+        csvRows.push([]);
+
+        csvRows.push(["结果汇总"]);
+        csvRows.push(["计划使用资金", plannedCapitalText]);
+        csvRows.push(["每只股票计划分配", capitalPerStockText]);
+        csvRows.push(["实际买入金额", actualCapitalText]);
+        csvRows.push(["计划资金剩余", plannedRemainingCapitalText]);
+        csvRows.push(["账户剩余资金", accountRemainingCapitalText]);
+        csvRows.push(["实际仓位比例", actualPositionPercentText]);
+        csvRows.push(["总预计最大亏损", totalRiskAmountText]);
+        csvRows.push(["账户总风险比例", totalRiskPercentText]);
+        csvRows.push(["持仓资金风险比例", positionRiskPercentText]);
+        csvRows.push([]);
+
+        csvRows.push([
+            "开仓日期时间",
+            "股票名称",
+            "买入价格",
+            "止损价格",
+            "止损幅度",
+            "分配资金",
+            "理论股数",
+            "实际可买股数",
+            "实际买入金额",
+            "未使用资金",
+            "预计最大亏损",
+            "账户风险占比"
+        ]);
+
+        rows.forEach(row => {
+            const stockName =
+                row.querySelector(".stock-name").value;
+
+            const buyPrice =
+                row.querySelector(".buy-price").value;
+
+            const stopPrice =
+                row.querySelector(".stop-price").value;
+
+            const stopPercent =
+                row.querySelector(".stop-percent").textContent;
+
+            const allocatedCapital =
+                row.querySelector(".allocated-capital").textContent;
+
+            const theoreticalShares =
+                row.querySelector(".theoretical-shares").textContent;
+
+            const actualShares =
+                row.querySelector(".actual-shares").textContent;
+
+            const actualPosition =
+                row.querySelector(".actual-position").textContent;
+
+            const unusedCapital =
+                row.querySelector(".unused-capital").textContent;
+
+            const riskAmount =
+                row.querySelector(".risk-amount").textContent;
+
+            const accountRiskPercent =
+                row.querySelector(".account-risk-percent").textContent;
+
+            csvRows.push([
+                openDateTime,
+                stockName,
+                buyPrice,
+                stopPrice,
+                stopPercent,
+                allocatedCapital,
+                theoreticalShares,
+                actualShares,
+                actualPosition,
+                unusedCapital,
+                riskAmount,
+                accountRiskPercent
+            ]);
+        });
+
+        const csvContent = csvRows
+            .map(row => {
+                return row
+                    .map(cell => {
+                        const cellText = String(cell ?? "");
+
+                        return `"${cellText.replace(/"/g, '""')}"`;
+                    })
+                    .join(",");
+            })
+            .join("\n");
+
+        const bom = "\uFEFF";
+
+        const blob = new Blob(
+            [bom + csvContent],
+            {
+                type: "text/csv;charset=utf-8;"
+            }
+        );
+
+        const now = new Date();
+
+        const fileName =
+            "股票仓位计算表_" +
+            now.getFullYear() +
+            String(now.getMonth() + 1).padStart(2, "0") +
+            String(now.getDate()).padStart(2, "0") +
+            "_" +
+            String(now.getHours()).padStart(2, "0") +
+            String(now.getMinutes()).padStart(2, "0") +
+            ".csv";
+
+        const link = document.createElement("a");
+
+        const url = URL.createObjectURL(blob);
+
+        link.href = url;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    }
+
+    function resetCalculator() {
+        document.getElementById(
+            "openDateTime"
+        ).value = getCurrentDateTimeForInput();
+
+        document.getElementById(
+            "accountBalance"
+        ).value = 1000000;
+
+        document.getElementById(
+            "allocationPercent"
+        ).value = 10;
+
+        document.getElementById(
+            "lotSize"
+        ).value = 100;
+
+        const tbody = document.getElementById(
+            "stockTableBody"
+        );
+
+        tbody.innerHTML = "";
+
+        defaultStocks.forEach(
+            createStockRow
+        );
+
+        calculatePositions();
+    }
+
+    [
+        "openDateTime",
+        "accountBalance",
+        "allocationPercent",
+        "lotSize"
+    ].forEach(id => {
+        const element =
+            document.getElementById(id);
+
+        element.addEventListener(
+            "input",
+            calculatePositions
+        );
+
+        element.addEventListener(
+            "change",
+            calculatePositions
+        );
+    });
+
+    document.getElementById(
+        "openDateTime"
+    ).value = getCurrentDateTimeForInput();
+
+    defaultStocks.forEach(
+        createStockRow
+    );
+
+    calculatePositions();
+</script>
+
+</body>
+</html>

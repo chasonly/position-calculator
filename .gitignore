@@ -1,0 +1,20 @@
+/.android-tools/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+keystore-password.txt
+
+# Generated packages, test output and local screenshots
+*.apk
+/tests/results/
+/android-app/test-results/
+/手机布局预览/
+node_modules/
+Thumbs.db
+Desktop.ini

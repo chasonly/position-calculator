@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>期货仓位计算器</title>
+<style>
+:root{--bg:#f7fafc;--hero:#edf2f8;--panel:#f2f5f9;--border:#bfc9d5;--text:#142235;--muted:#4d627b;--bar:#e9eef4;--accent:#456b9e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Noto Serif SC","Songti SC","SimSun",serif;font-size:16px}.hero{background:var(--hero);padding:12px 27px 72px}.hero h1{font-size:54px;font-weight:500;margin:0 0 14px;letter-spacing:1px}.hero p{margin:0;font-size:18px}.layout{max-width:1600px;margin:60px auto 0;padding:0 27px 35px;display:grid;grid-template-columns:1.05fr .95fr;gap:30px}.panel{border:1px solid var(--border);background:var(--panel);border-radius:5px;padding:26px 25px 28px;min-height:503px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}.panel h2{font-size:25px;margin:0;font-weight:600}.presets{display:flex;gap:10px}button{font:inherit;border:1px solid #aebdd0;background:transparent;border-radius:5px;padding:6px 13px;cursor:pointer;color:#142235}button:hover{background:#e2eaf5}button.active{background:#dce6f3;border-color:#6c8db4}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:19px 15px}.field label{display:block;margin-bottom:8px;font-size:16px}.field input{display:block;width:100%;height:48px;border:1px solid #bbc7d4;border-radius:5px;background:#f8fafc;font:18px Georgia,"SimSun",serif;padding:0 15px;color:#080d15}.field input:focus{outline:2px solid #8baed9;outline-offset:1px}.result-list{display:grid;gap:9px}.result-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--bar);border-radius:5px;padding:11px 15px;min-height:46px;font-size:18px}.result-row strong{font-weight:500;text-align:right}.result-row.highlight strong{font-weight:800}.notice{font-size:15px;line-height:1.9;margin:19px 0 0;color:#283f5c}.error{color:#b42318;font-size:14px;min-height:20px;margin-top:13px}.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#243a56;color:white;padding:10px 20px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s}.toast.show{opacity:1}@media(max-width:850px){.hero{padding:24px 18px 40px}.hero h1{font-size:38px}.layout{margin:25px auto;grid-template-columns:1fr;padding:0 16px;gap:18px}.panel{min-height:auto;padding:22px 18px}.panel-head{flex-wrap:wrap}.form-grid{gap:16px 12px}.field input{font-size:16px}.result-row{font-size:16px}}@media(max-width:420px){.form-grid{grid-template-columns:1fr}.hero h1{font-size:34px}.presets{gap:5px}button{padding:6px 10px}}
+</style>
+</head>
+<body>
+<header class="hero"><h1>期货仓位计算器</h1><p>输入账户权益、风险比例与止损参数，快速得到建议开仓手数和风险占用。</p></header>
+<main class="layout">
+<section class="panel"><div class="panel-head"><h2>输入参数</h2><div class="presets" aria-label="风险预设"><button type="button" data-risk="0.5" class="active">保守</button><button type="button" data-risk="1">中性</button><button type="button" data-risk="2">激进</button></div></div>
+<div class="form-grid">
+<div class="field"><label for="equity">账户权益（元）</label><input id="equity" type="number" min="0" step="any" value="5000000"></div>
+<div class="field"><label for="risk">单笔风险比例（%）</label><input id="risk" type="number" min="0" max="100" step="any" value="0.5"></div>
+<div class="field"><label for="entry">开仓价格</label><input id="entry" type="number" min="0" step="any" value="3500"></div>
+<div class="field"><label for="stop">止损价格</label><input id="stop" type="number" min="0" step="any" value="3465"></div>
+<div class="field"><label for="multiplier">合约乘数</label><input id="multiplier" type="number" min="0" step="any" value="10"></div>
+<div class="field"><label for="margin">保证金率（%）</label><input id="margin" type="number" min="0" max="100" step="any" value="15"></div>
+</div><div id="error" class="error" role="status"></div></section>
+<section class="panel"><div class="panel-head"><h2>结果输出</h2><button id="share" type="button">复制分享链接</button></div>
+<div class="result-list">
+<div class="result-row"><span>风险预算</span><strong id="budget">25,000 元</strong></div>
+<div class="result-row"><span>每手风险</span><strong id="perLot">350 元</strong></div>
+<div class="result-row highlight"><span>建议开仓手数</span><strong id="lots">71 手</strong></div>
+<div class="result-row"><span>预计占用保证金</span><strong id="marginUsed">372,750 元</strong></div>
+<div class="result-row"><span>预计风险占用</span><strong id="riskUsed">24,850 元</strong></div>
+<div class="result-row"><span>风险预算利用率</span><strong id="utilization">99.4%</strong></div>
+</div><p class="notice">说明：该计算器用于仓位规划参考，未包含交易所手续费、滑点与跳空风险。实盘请结合策略回撤阈值与流动性评估。</p></section>
+</main><div id="toast" class="toast" role="status"></div>
+<script>
+(()=>{'use strict';const ids=['equity','risk','entry','stop','multiplier','margin'];const inputs=Object.fromEntries(ids.map(k=>[k,document.getElementById(k)]));const out=Object.fromEntries(['budget','perLot','lots','marginUsed','riskUsed','utilization'].map(k=>[k,document.getElementById(k)]));const err=document.getElementById('error');const fmt=(v,d=0)=>v.toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d});function calculate(){const v=Object.fromEntries(ids.map(k=>[k,Number(inputs[k].value)]));let message='';if(ids.some(k=>inputs[k].value.trim()===''||!Number.isFinite(v[k])))message='请填写所有有效数值。';else if(v.equity<=0||v.entry<=0||v.stop<=0||v.multiplier<=0)message='账户权益、开仓价、止损价及合约乘数必须大于0。';else if(v.risk<=0||v.risk>100||v.margin<=0||v.margin>100)message='风险比例与保证金率应大于0且不超过100%。';else if(v.entry===v.stop)message='开仓价与止损价不能相同。';err.textContent=message;if(message){Object.values(out).forEach(e=>e.textContent='—');return;}const budget=v.equity*v.risk/100;const perLot=Math.abs(v.entry-v.stop)*v.multiplier;const marginPerLot=v.entry*v.multiplier*v.margin/100;const riskLots=Math.floor(budget/perLot);const marginLots=Math.floor(v.equity/marginPerLot);const lots=Math.max(0,Math.min(riskLots,marginLots));const riskUsed=lots*perLot;out.budget.textContent=fmt(budget,2).replace(/\.00$/,'')+' 元';out.perLot.textContent=fmt(perLot,2).replace(/\.00$/,'')+' 元';out.lots.textContent=fmt(lots)+' 手';out.marginUsed.textContent=fmt(lots*marginPerLot,2).replace(/\.00$/,'')+' 元';out.riskUsed.textContent=fmt(riskUsed,2).replace(/\.00$/,'')+' 元';out.utilization.textContent=fmt(budget>0?riskUsed/budget*100:0,1)+'%';document.querySelectorAll('[data-risk]').forEach(b=>b.classList.toggle('active',Number(b.dataset.risk)===v.risk));}
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove('show'),2200)}
+ids.forEach(k=>inputs[k].addEventListener('input',calculate));document.querySelectorAll('[data-risk]').forEach(b=>b.addEventListener('click',()=>{inputs.risk.value=b.dataset.risk;calculate()}));const params=new URLSearchParams(location.search);ids.forEach(k=>{if(params.has(k))inputs[k].value=params.get(k)});document.getElementById('share').addEventListener('click',async()=>{const url=new URL(location.href);ids.forEach(k=>url.searchParams.set(k,inputs[k].value));const value=url.toString();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);else{const t=document.createElement('textarea');t.value=value;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();if(!document.execCommand('copy'))throw Error('copy failed');t.remove()}toast('分享链接已复制')}catch(e){window.prompt('请手动复制分享链接：',value)}});calculate();})();
+</script>
+</body></html>
