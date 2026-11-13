@@ -10,8 +10,8 @@ const {pathToFileURL}=require('node:url');
     page.on('pageerror',e=>errors.push(e.message));
     await page.addInitScript(()=>{
       window.AndroidApp={
-        getInitialState:()=>localStorage.getItem('mock-native-state')||'',
-        saveState:value=>{localStorage.setItem('mock-native-state',value);},
+        getInitialState:()=>{const next=localStorage.getItem('mock-next-initial');if(next){localStorage.removeItem('mock-next-initial');return next;}return localStorage.getItem('mock-native-state')||'';},
+        saveState:value=>{const version=JSON.parse(value).version;if(version>=1&&version<=6)localStorage.setItem('mock-native-state',value);},
         shareText:text=>window.nativeShare=text,exportCsv:(csv,name)=>window.nativeCsv={csv,name},
         requestData:(id,kind,key)=>setTimeout(()=>{
           let text;
@@ -26,6 +26,8 @@ const {pathToFileURL}=require('node:url');
       };
     });
     await page.goto(url);const row=page.locator('.stock-editor').first();
+    assert.equal(await page.locator('#s-risk').inputValue(),'2');
+    assert.equal(await page.locator('.topbar .tag').count(),0);
     assert.equal(await page.locator('.stock-editor').count(),3);
     await row.locator('.stock-code').fill('payh');await row.locator('.stock-option').first().click();
     await page.waitForFunction(()=>document.querySelector('.buy-price').value==='11.2');
@@ -33,9 +35,11 @@ const {pathToFileURL}=require('node:url');
     assert.equal(await page.locator('iframe').count(),0,'Android transport never executes provider scripts');
     await row.locator('.buy-price').fill('12');await row.locator('.stop-price').fill('9');await row.locator('.price-refresh').click();
     await page.waitForFunction(()=>document.querySelector('.buy-price').value==='11.2');assert.equal(await row.locator('.stop-price').inputValue(),'9');
-    await page.locator('#s-balance').fill('200000');await page.locator('#s-allocation').fill('35');await page.locator('.remove').last().click();
+    await page.locator('#s-balance').fill('200000');await page.locator('#s-risk').fill('3.5');await page.locator('.remove').last().click();
     await page.locator('#stock-settings').evaluate(el=>el.open=true);await page.locator('#s-lot').selectOption('1');
     await page.locator('#stock-panel [data-share]').click();assert.match(await page.evaluate(()=>window.nativeShare),/平安银行/);
+    assert.match(await page.evaluate(()=>window.nativeShare),/账户总风险比例（设定）：3.50%/);
+    assert.match(await page.evaluate(()=>window.nativeShare),/资金占比.*止损风险/);
     await page.locator('#stock-export').click();assert.match(await page.evaluate(()=>window.nativeCsv.csv),/000001/);
     await page.locator('#futures-tab').click();await page.locator('#f-code').fill('rb27');await page.locator('#f-quote-box .stock-option').first().click();
     await page.waitForFunction(()=>document.getElementById('f-entry').value==='3042');
@@ -44,21 +48,29 @@ const {pathToFileURL}=require('node:url');
     await page.locator('#futures-panel [data-share]').click();assert.match(await page.evaluate(()=>window.nativeShare),/保证金率：17.00%/);
     await page.waitForFunction(()=>JSON.parse(localStorage.getItem('mock-native-state')).futures.equity==='800000');
     const saved=JSON.parse(await page.evaluate(()=>localStorage.getItem('mock-native-state')));
+    assert.equal(saved.version,6);assert.equal(saved.stock.risk,'3.5');
     assert.equal(saved.rows.length,2);assert.equal(saved.market,'futures');assert.equal(saved.futuresAutoStop,false);assert.equal(saved.marginPreferences['SHFE:RB'],17);
     await page.reload();
     assert.equal(await page.locator('#futures-tab').getAttribute('aria-selected'),'true');
     for(const [id,value] of [['f-entry','3042'],['f-stop','3600'],['f-margin','17'],['f-equity','800000']])assert.equal(await page.locator('#'+id).inputValue(),value);
     assert.equal(await page.locator('[data-side=short]').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('.stock-editor').count(),2);
     await page.locator('#stock-tab').click();
-    assert.equal(await page.locator('#s-balance').inputValue(),'200000');assert.equal(await page.locator('#s-allocation').inputValue(),'35');
+    assert.equal(await page.locator('#s-balance').inputValue(),'200000');assert.equal(await page.locator('#s-risk').inputValue(),'3.5');
     assert.equal(await row.locator('.stock-code').inputValue(),'000001');assert.equal(await row.locator('.stop-price').inputValue(),'9');assert.equal(await page.locator('#stock-settings').getAttribute('open'),'');
     await page.locator('#futures-tab').click();await page.locator('#f-price-refresh').click();
     await page.waitForFunction(()=>!document.getElementById('f-quote-box').hasAttribute('aria-busy'));assert.equal(await page.locator('#f-stop').inputValue(),'3600');
     await page.locator('#futures-reset').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('mock-native-state')).futures.entry==='');
     await page.reload();assert.equal(await page.locator('#f-entry').inputValue(),'');assert.equal(await page.locator('#s-balance').inputValue(),'200000','reset remains independent');
+    const legacy={...saved,version:5,stock:{...saved.stock,allocation:'35'}};delete legacy.stock.risk;
+    await page.evaluate(value=>localStorage.setItem('mock-next-initial',JSON.stringify(value)),legacy);
+    await page.reload();assert.equal(await page.locator('#s-risk').inputValue(),'2','old cash allocation is never treated as risk');
+    assert.equal(await row.locator('.stock-code').inputValue(),'000001');assert.equal(await row.locator('.stop-price').inputValue(),'9');
+    assert.equal(await page.locator('#f-stop').inputValue(),'3600');assert.equal(await page.locator('#f-margin').inputValue(),'17');
+    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('mock-native-state')).version===6);
+    await page.reload();assert.equal(await page.locator('#s-risk').inputValue(),'2');
     assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     fs.mkdirSync(path.join(__dirname,'test-results'),{recursive:true});
-    const result='PASS v1.4.0: native-data adapter parses stock/pinyin/futures/metadata without script frames; edits, deletion, market, direction, manual stop, margin preferences and details survive reload; independent reset persists; share/CSV and mobile layout checked. Native bridge mocked in Chromium.';
+    const result='PASS v1.4.2: risk-budget schema 6 saved/restored; legacy schema 5 migrates to 2% without losing stocks, prices or futures settings; native-data adapter stock/pinyin/futures/metadata, manual stops, product margin preferences, independent reset, share/CSV and mobile layout checked. Native bridge mocked in Chromium.';
     fs.writeFileSync(path.join(__dirname,'test-results','adapter-results.txt'),result+'\n');console.log(result);
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

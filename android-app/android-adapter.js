@@ -22,6 +22,7 @@ loadLink=()=>{
     const saved=JSON.parse(decodeURIComponent(location.hash.slice(7)));
     if(Array.isArray(saved.uiDetails))document.querySelectorAll('details[id]').forEach(el=>el.open=saved.uiDetails.includes(el.id));
   } catch (_) {}
+  window.saveAndroidState();
 };
 if (savedState) location.hash = 'state=' + encodeURIComponent(savedState);
 ['input','change','click'].forEach(eventName => document.addEventListener(eventName, () => {
@@ -89,13 +90,13 @@ share = async function () {
   }
   const lines = ['仓位计算器 · ' + (market === 'stock' ? 'A 股股票' : '期货合约'),'先控风险，再谈盈利。',''];
   if (market === 'stock') {
-    lines.push('开仓计划时间：' + $('s-open-time').value.replace('T',' '),'账户资金：' + $('s-balance').value + ' 元','计划买入资金比例：' + percent(number($('s-allocation'))),'最小交易单位：' + $('s-lot').value + ' 股','分配方式：在计划买入资金内，按相同目标止损亏损分配，数量向下取整。');
+    lines.push('开仓计划时间：' + $('s-open-time').value.replace('T',' '),'账户资金：' + $('s-balance').value + ' 元','账户总风险比例（设定）：' + percent(number($('s-risk'))),'最小交易单位：' + $('s-lot').value + ' 股','分配方式：按账户风险预算均分止损风险，股数向下取整；买入资金不足时等比例缩减。');
     lines.push('实际买入金额：' + $('s-actual').textContent + ' 元');
     for (const position of stockPositions) {
       const row = position.row;
       lines.push('',row.querySelector('.stock-name').value || '未命名股票',
         '买入价 ' + row.querySelector('.buy-price').value + ' / 止损价 ' + row.querySelector('.stop-price').value,
-        '可买 ' + fmt(position.shares,0) + ' ' + stockQuantityUnit(row) + ' / 买入金额 ' + money(position.actual) + ' / 预计止损亏损 ' + money(position.loss));
+        '可买 ' + fmt(position.shares,0) + ' ' + stockQuantityUnit(row) + ' / 买入金额 ' + money(position.actual) + ' / 资金占比 ' + percent(position.actual/number($('s-balance'))*100) + ' / 预计止损亏损 ' + money(position.loss) + ' / 止损风险 ' + percent(position.accountRisk));
     }
   } else {
     lines.push('账户权益：' + $('f-equity').value + ' 元','单笔风险比例：' + percent(number($('f-risk'))),'开仓价：' + $('f-entry').value,'止损价：' + $('f-stop').value,'合约乘数：' + $('f-multiplier').value,'保证金率：' + percent(number($('f-margin'))),'建议开仓：' + $('f-lots').textContent + ' 手');

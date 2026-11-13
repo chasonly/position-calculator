@@ -146,7 +146,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject data = new JSONObject(state);
                 int version = data.optInt("version");
-                if (version >= 1 && version <= 5) preferences.edit().putString("state",state).apply();
+                if (version >= 1 && version <= 6) preferences.edit().putString("state",state).apply();
             } catch (Exception ignored) { /* Keep the last valid state. */ }
         }
         @JavascriptInterface public void shareText(String text) {

@@ -13,6 +13,8 @@
 @media(max-width:540px){.topbar-inner{padding:10px 16px}.shell{padding:18px 16px 24px}h1{font-size:22px}.intro{margin-bottom:16px}.card{padding:18px}.workspace,.main-column{gap:18px}.stock-editor{padding:14px}.name-field{gap:6px}.stock-editor-head{gap:8px}.stock-name{padding:7px 8px}.tag{font-size:10px}.buy-quantity strong{font-size:28px}.actions{gap:6px}.settings-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 .buy-text{min-width:0}.buy-loss{font-size:11px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.buy-quantity{min-width:0;max-width:60%;flex-shrink:1}.buy-quantity strong{min-width:0;overflow-wrap:anywhere}.buy-quantity span{flex-shrink:0}
+.buy-loss{white-space:pre-line}
+.buy-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,42%)}.buy-quantity{width:100%;max-width:none;justify-content:flex-end;white-space:nowrap;overflow-wrap:normal}.buy-quantity strong{flex:none;width:max-content;white-space:nowrap;overflow-wrap:normal;word-break:normal}.buy-quantity span{white-space:nowrap}
 .account-risk-highlight{padding:16px 18px;margin-bottom:18px;border-radius:12px;background:var(--soft)}.account-risk-highlight .metric{display:block;padding:0;border:0}.account-risk-highlight .metric>span{font-size:13px;color:var(--ink);font-weight:600}.account-risk-highlight .metric>strong{display:block;text-align:left;font-size:36px;line-height:1.4;font-weight:800;letter-spacing:-1px;color:var(--blue);margin:4px 0}.account-risk-highlight p{font-size:11px;color:var(--muted);line-height:1.7}
 .quote-box{margin-bottom:14px}.quote-row{display:flex;gap:8px;align-items:center}.quote-row input{flex:1;min-width:0}.quote-button{flex-shrink:0;color:var(--blue);background:var(--soft);border-color:#d3e1ff;font-size:13px;padding:9px 12px;min-height:48px}.quote-button:disabled{cursor:wait;opacity:.6}.quote-status{font-size:11px;color:var(--muted);line-height:1.7;margin-top:6px;overflow-wrap:anywhere;white-space:pre-line}.quote-status:empty{display:none}.quote-status[data-kind=error]{color:var(--red)}.quote-status[data-kind=success]{color:#3e7358}.quote-status[data-kind=stale]{color:#906621}.quote-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7}
 .stock-editor-head{gap:6px;align-items:center;justify-content:flex-start;margin-bottom:0}.stock-code-field{position:relative;flex:1;min-width:0}.stock-code-control{display:flex;align-items:center;min-width:0;height:44px;border:1px solid #dce4ef;border-radius:10px;background:#f8fafd;cursor:text}.stock-code-control:focus-within{border-color:#7fa5ef;outline:3px solid #99b9ff;outline-offset:2px;background:white}.stock-code-field .stock-code{flex:1;width:100%;min-width:0;height:42px;padding:9px 8px;border:0;background:transparent;border-radius:9px;font-size:14px;font-variant-numeric:tabular-nums;outline:none}.has-stock-name .stock-code{flex:0 0 66px;width:66px;font-size:12px}.has-stock-name .stock-code-control{background:var(--soft);border-color:#d3e1ff}.stock-editor-head .remove{flex:0 0 44px;min-height:44px;height:44px;padding:8px 4px}.stock-title{flex:1;min-width:0;padding-right:8px;color:var(--blue);font-size:14px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stock-suggestions{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:5;border:1px solid #cbdaf4;border-radius:10px;background:white;box-shadow:0 8px 22px #182b4324;overflow:hidden}.stock-option{display:block;width:100%;min-height:54px;padding:10px;text-align:left;border:0;border-radius:0;background:white}.stock-option:hover,.stock-option[aria-selected=true]{background:var(--soft)}.stock-option strong{display:block;color:var(--blue);font-size:14px;overflow-wrap:anywhere}.stock-option small{display:block;color:var(--muted);font-size:11px;font-weight:400}.stock-search-message{padding:10px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}.stock-search-message:empty{display:none}
@@ -36,21 +38,21 @@
   <section id="stock-panel" role="tabpanel" aria-labelledby="stock-tab">
     <div class="workspace"><div class="main-column">
       <section class="card"><div class="card-head"><h2>账户设置</h2><span class="live-tag">自动计算</span></div>
-        <div class="form-grid"><div class="field"><label for="s-balance">账户总资金</label><div class="input-wrap"><input id="s-balance" type="number" inputmode="decimal" step="any" value="1000000" min="0"><span class="unit">元</span></div></div><div class="field"><label for="s-allocation">计划买入资金比例</label><div class="input-wrap"><input id="s-allocation" type="number" inputmode="decimal" step="any" value="10" min="0" max="100"><span class="unit">%</span></div></div></div>
+        <div class="form-grid"><div class="field"><label for="s-balance">账户总资金</label><div class="input-wrap"><input id="s-balance" type="number" inputmode="decimal" step="any" value="1000000" min="0"><span class="unit">元</span></div></div><div class="field"><label for="s-risk">账户总风险比例</label><div class="input-wrap"><input id="s-risk" type="number" inputmode="decimal" step="any" value="2" min="0" max="100"><span class="unit">%</span></div></div></div>
         <details class="fold" id="stock-settings"><summary>更多设置</summary><div class="form-grid settings-grid fold-body"><div class="field"><label for="s-open-time">开仓计划时间</label><input id="s-open-time" type="datetime-local"></div><div class="field"><label for="s-lot">最小交易单位</label><select id="s-lot"><option value="1">1 股（逐股测算）</option><option value="100" selected>100 股一手</option></select></div></div></details>
         <div class="error" id="stock-error" role="status"></div>
       </section>
-      <section class="stock-section" aria-labelledby="stock-editor-heading"><div class="card-head"><h2 id="stock-editor-heading">股票<span class="count" id="stock-count">3</span></h2></div><p class="hint" id="stock-allocation-hint">在计划资金内，让每只股票的止损亏损尽量相同。</p>
+      <section class="stock-section" aria-labelledby="stock-editor-heading"><div class="card-head"><h2 id="stock-editor-heading">股票<span class="count" id="stock-count">3</span></h2></div><p class="hint" id="stock-allocation-hint">按账户风险预算，让每只股票的止损亏损尽量相同。</p>
         <div id="stock-rows" class="stock-list"></div>
         <button class="add-stock" id="add-stock">＋ 添加股票</button><div class="error" id="stock-row-error" role="status"></div>
       </section>
     </div>
     <aside class="card summary" id="stock-buy-results" aria-labelledby="stock-buy-heading"><div class="card-head"><h2 id="stock-buy-heading">仓位概览</h2><span class="live-tag">实时更新</span></div>
-      <div class="account-risk-highlight"><div class="metric"><span>账户总风险比例</span><strong id="s-risk-total">—</strong></div><p>全部股票触及止损时，预计亏损占账户资金的比例</p></div>
+      <div class="account-risk-highlight"><div class="metric"><span>实际账户风险比例</span><strong id="s-risk-total">—</strong></div><p>全部股票触及止损时，预计亏损占账户资金的比例</p></div>
       <div class="summary-label">每只股票可买数量</div><div class="buy-empty" id="stock-buy-empty">填好股票价格后，自动显示可买股数。</div><div class="buy-grid" id="stock-buy-grid"></div><p class="hint">按交易单位向下取整，止损亏损可能略有差异。</p><div class="error" id="stock-buy-warning"></div>
-      <div class="metrics"><div class="metric"><span>计划买入资金</span><strong id="s-planned">—</strong></div><div class="metric"><span>预计止损亏损</span><strong id="s-loss" class="risk-text">—</strong></div><div class="metric"><span>买入所需资金</span><strong><span id="s-actual">—</span> 元</strong></div></div>
-      <details class="fold" id="stock-details"><summary>详细数据</summary><div class="metrics"><div class="metric"><span>开仓计划时间</span><strong id="s-date">—</strong></div><div class="metric"><span>账户总资金</span><strong id="s-account">—</strong></div><div class="metric"><span>每只股票目标止损亏损</span><strong id="s-target-risk">—</strong></div><div class="metric"><span>未用买入资金</span><strong id="s-planned-remaining">—</strong></div><div class="metric"><span>账户剩余资金</span><strong id="s-remaining">—</strong></div><div class="metric"><span>实际仓位比例</span><strong id="s-position-percent">—</strong></div><div class="metric"><span>持仓资金风险比例</span><strong id="s-position-risk">—</strong></div></div><div id="stock-breakdown"></div></details>
-      <details class="fold"><summary>计算说明</summary><div class="detail-note">计划买入资金 = 账户总资金 × 买入资金比例。<br>每股止损亏损 = 买入价 − 止损价。<br>每只股票目标止损亏损 = 计划买入资金 ÷ 所有股票的（买入价 ÷ 每股止损亏损）之和。<br>理论股数 = 目标止损亏损 ÷ 每股止损亏损，再按交易单位向下取整。<br>买入金额不超过计划资金；整手取整会使止损亏损略有差异，余款保留，不再追加。未预留手续费。</div></details>
+      <div class="metrics"><div class="metric"><span>买入资金比例</span><strong id="s-position-percent">—</strong></div><div class="metric"><span>计划止损预算</span><strong id="s-planned">—</strong></div><div class="metric"><span>预计止损亏损</span><strong id="s-loss" class="risk-text">—</strong></div><div class="metric"><span>买入所需资金</span><strong><span id="s-actual">—</span> 元</strong></div></div>
+      <details class="fold" id="stock-details"><summary>详细数据</summary><div class="metrics"><div class="metric"><span>开仓计划时间</span><strong id="s-date">—</strong></div><div class="metric"><span>账户总资金</span><strong id="s-account">—</strong></div><div class="metric"><span>每只股票目标止损亏损</span><strong id="s-target-risk">—</strong></div><div class="metric"><span>未使用风险预算</span><strong id="s-planned-remaining">—</strong></div><div class="metric"><span>账户剩余资金</span><strong id="s-remaining">—</strong></div><div class="metric"><span>持仓资金风险比例</span><strong id="s-position-risk">—</strong></div></div><div id="stock-breakdown"></div></details>
+      <details class="fold"><summary>计算说明</summary><div class="detail-note">计划止损预算 = 账户总资金 × 账户总风险比例。<br>每只股票目标止损亏损 = 计划止损预算 ÷ 有效股票数量。<br>每股止损亏损 = 买入价 − 止损价。<br>理论股数 = 每只股票目标止损亏损 ÷ 每股止损亏损，再按交易单位向下取整。<br>买入资金比例 = 实际买入金额 ÷ 账户总资金。<br>如所需买入资金超过账户总资金，各股票按相同比例缩减，实际风险低于设定值。整手取整会使止损亏损略有差异。止盈价不参与本次仓位计算。未预留手续费。</div></details>
       <div class="actions"><button id="stock-export">导出 CSV</button><button data-share>分享参数</button></div><button class="reset-button" id="stock-reset">重置股票参数</button>
     </aside></div>
   </section>
@@ -77,7 +79,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const stockDefaults = Array.from({length:3},(_,i)=>({name:`股票${i+1}`,buy:'',stop:''}));
-  const stockFields = ['open-time','balance','allocation','lot'];
+  const stockFields = ['open-time','balance','risk','lot'];
   const futuresFields = ['equity','risk','entry','stop','multiplier','margin'];
   const stockResults = ['s-date','s-account','s-actual','s-planned','s-target-risk','s-planned-remaining','s-remaining','s-position-percent','s-loss','s-risk-total','s-position-risk'];
   const futuresResults = ['f-lots','f-budget','f-per-lot','f-margin-used','f-risk-used','f-utilization'];
@@ -104,6 +106,19 @@
   } catch {marginStorageAvailable=false;}
   let stockPositions = [];
   const stockRows = () => [...$('stock-rows').children];
+  function fitStockQuantities() {
+    document.querySelectorAll('#stock-buy-grid .buy-quantity').forEach(quantity=>{
+      if(!quantity.clientWidth)return;
+      const value=quantity.querySelector('strong'),unit=quantity.querySelector('span');
+      value.style.fontSize='';
+      const available=Math.max(1,quantity.clientWidth-unit.getBoundingClientRect().width-(parseFloat(getComputedStyle(quantity).columnGap)||0));
+      const width=value.getBoundingClientRect().width;
+      if(width>available){
+        const base=parseFloat(getComputedStyle(value).fontSize);
+        value.style.fontSize=Math.max(1,Math.floor(base*available/width*10)/10)+'px';
+      }
+    });
+  }
   function removeStock(row) {
     const rows=stockRows(), index=rows.indexOf(row);
     cancelQuote(row.querySelector('.quote-box'));
@@ -120,6 +135,7 @@
       $(`${key}-tab`).tabIndex = selected?0:-1;
     });
     if(focus) $(`${next}-tab`).focus();
+    if(next==='stock')fitStockQuantities();
   }
   ['stock','futures'].forEach(key => {
     $(`${key}-tab`).addEventListener('click',() => switchMarket(key));
@@ -730,9 +746,9 @@
     const rows = stockRows();
     stockPositions=[];
     $('stock-count').textContent=rows.length;
-    $('stock-allocation-hint').textContent=rows.length ? '在计划资金内分配相同止损风险，空白卡片不参与计算。' : '添加股票并填写买入价、止损价后，自动分配仓位。';
+    $('stock-allocation-hint').textContent=rows.length ? '先定账户风险，再按止损距离分配股数；空白卡片不参与计算。' : '添加股票并填写买入价、止损价后，自动分配仓位。';
     $('stock-breakdown').replaceChildren();
-    const balance = number($('s-balance')), allocation = number($('s-allocation')), lot = number($('s-lot'));
+    const balance = number($('s-balance')), risk = number($('s-risk')), lot = number($('s-lot'));
     $('stock-error').textContent = '';
     $('stock-row-error').textContent = '';
     $('stock-buy-grid').replaceChildren();
@@ -748,13 +764,13 @@
     setRiskClass($('s-risk-total'),NaN);
     $('s-date').textContent = $('s-open-time').value.replace('T',' ') || '—';
     if(!Number.isFinite(balance)||balance<=0) {$('stock-error').textContent='账户总资金必须是大于 0 的有效数值。';return;}
-    if(!Number.isFinite(allocation)||allocation<0||allocation>100) {$('stock-error').textContent='计划买入资金比例须在 0% 到 100% 之间。';return;}
+    if(!Number.isFinite(risk)||risk<0||risk>100) {$('stock-error').textContent='账户总风险比例须在 0% 到 100% 之间。';return;}
     if(![1,100].includes(lot)) {$('stock-error').textContent='请选择有效的最小交易单位。';return;}
     if(!rows.length) {$('stock-row-error').textContent='请至少添加一只股票。';return;}
     const activeRows=rows.filter(row=>['.stock-code','.buy-price','.stop-price'].some(selector=>row.querySelector(selector).value.trim()));
     if(!activeRows.length) {$('stock-buy-empty').textContent='选择股票或填写买入价后，自动显示可买数量。';return;}
-    const planned = balance*(allocation/100);
-    if(!Number.isFinite(planned)) {$('stock-error').textContent='输入金额超出计算范围，请调整参数。';return;}
+    const riskBudget = balance*(risk/100);
+    if(!Number.isFinite(riskBudget)) {$('stock-error').textContent='输入金额超出计算范围，请调整参数。';return;}
     const invalidBuy = [], invalidStop = [];
     const inputs = activeRows.map((row,index) => {
       const buyInput=row.querySelector('.buy-price'),stopInput=row.querySelector('.stop-price');
@@ -769,16 +785,18 @@
       $('stock-buy-empty').textContent='请补全所有股票的有效买入价和止损价，再按等风险分配。';
       return;
     }
-    // Equal stop loss R implies shares_i = R / distance_i.
-    // The cash ceiling gives R = planned / sum(buy_i / distance_i).
+    // Split the risk budget equally, then scale all positions only if cash is insufficient.
     const totalCostPerRisk=inputs.reduce((sum,p)=>sum+p.buy/p.distance,0);
-    const targetRisk=planned/totalCostPerRisk;
-    if(!Number.isFinite(totalCostPerRisk)||totalCostPerRisk<=0||!Number.isFinite(targetRisk)) {
+    const requestedRisk=riskBudget/inputs.length;
+    const requiredCash=requestedRisk*totalCostPerRisk;
+    const targetRisk=Math.min(requestedRisk,balance/totalCostPerRisk);
+    const planned=Math.min(balance,targetRisk*totalCostPerRisk);
+    if(!Number.isFinite(totalCostPerRisk)||totalCostPerRisk<=0||!Number.isFinite(targetRisk)||!Number.isFinite(requiredCash)) {
       $('stock-error').textContent='止损距离过小或输入超出可靠计算范围，请调整参数。';return;
     }
     const positions=inputs.map(({row,buy,distance})=>{
       const theoretical=targetRisk/distance;
-      const allocated=planned*((buy/distance)/totalCostPerRisk);
+      const allocated=targetRisk*(buy/distance);
       let shares=floorUnits(theoretical/lot)*lot;
       // Correct only floating-point noise at exact lot boundaries.
       if(shares*buy-allocated>8*Number.EPSILON*Math.max(1,allocated)) shares=Math.max(0,shares-lot);
@@ -798,9 +816,9 @@
     const totalRiskPercent = loss/balance*100;
     $('s-account').textContent=money(balance);
     $('s-actual').textContent=fmt(actual);
-    $('s-planned').textContent=money(planned);
+    $('s-planned').textContent=money(riskBudget);
     $('s-target-risk').textContent=money(targetRisk);
-    $('s-planned-remaining').textContent=money(Math.max(0,planned-actual));
+    $('s-planned-remaining').textContent=money(Math.max(0,riskBudget-loss));
     $('s-remaining').textContent=money(balance-actual);
     $('s-remaining').classList.toggle('risk-text',actual>balance);
     $('s-position-percent').textContent=percent(actual/balance*100);
@@ -809,7 +827,10 @@
     $('s-position-risk').textContent=percent(actual>0?loss/actual*100:0);
     setRiskClass($('s-risk-total'),totalRiskPercent);
     const zeroCount=positions.filter(p=>p.shares===0).length;
-    if(planned>0&&zeroCount) $('stock-buy-warning').textContent=`按等风险分配后，有 ${zeroCount} 只股票不足 ${lot} 股，当前实际止损亏损无法接近。`;
+    const warnings=[];
+    if(requiredCash-balance>16*Number.EPSILON*Math.max(1,balance))warnings.push(`按设定风险需投入 ${money(requiredCash)}（${percent(requiredCash/balance*100)}），超过账户总资金。已等比例缩减仓位，实际风险低于设定值。`);
+    if(riskBudget>0&&zeroCount)warnings.push(`按等风险分配后，有 ${zeroCount} 只股票不足 ${lot} 股，当前实际止损亏损无法接近。`);
+    $('stock-buy-warning').textContent=warnings.join('\n');
     $('stock-buy-empty').hidden=false;
     const cards = document.createDocumentFragment();
     positions.forEach((position,index) => {
@@ -819,7 +840,7 @@
       card.querySelector('.buy-name').textContent = position.row.querySelector('.stock-name').value.trim() || `股票${index+1}`;
       card.querySelector('.buy-quantity strong').textContent = fmt(position.shares,0);
       card.querySelector('.buy-quantity span').textContent=stockQuantityUnit(position.row);
-      card.querySelector('.buy-loss').textContent='止损亏损 '+money(position.loss);
+      card.querySelector('.buy-loss').textContent='买入 '+money(position.actual)+' · 资金占比 '+percent(position.actual/balance*100)+'\n止损亏损 '+money(position.loss)+'\n止损风险 '+percent(position.accountRisk);
       const detail=document.createElement('section');detail.className='breakdown-item';
       const heading=document.createElement('h3');heading.textContent=card.querySelector('.buy-name').textContent;detail.appendChild(heading);
       const data=[['理论分配资金',money(position.allocated)],['目标止损亏损',money(position.targetRisk)],['买入金额',money(position.actual)],['预计止损亏损',position.loss===null?'—':money(position.loss)],['止损幅度',position.stop===null?'—':percent(position.stop)],['未用买入资金',money(position.unused)],['理论股数',fmt(position.theoretical)],['账户风险占比',position.accountRisk===null?'—':percent(position.accountRisk)]];
@@ -830,6 +851,7 @@
     });
     $('stock-buy-grid').appendChild(cards);
     $('stock-buy-empty').hidden=true;
+    fitStockQuantities();
     return true;
   }
   function calculateFutures() {
@@ -858,7 +880,7 @@
   }
   function resetStocks() {
     stockRows().forEach(row=>cancelQuote(row.querySelector('.quote-box')));
-    const defaults={'open-time':currentDateTime(),balance:1000000,allocation:10,lot:100};
+    const defaults={'open-time':currentDateTime(),balance:1000000,risk:2,lot:100};
     stockFields.forEach(key=>$(`s-${key}`).value=defaults[key]);
     $('stock-rows').replaceChildren();rowSequence=0;stockDefaults.forEach(createStock);calculateStocks();
   }
@@ -877,7 +899,7 @@
   }
   function toast(message) {$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,3500);}
   function snapshot() {
-    return {version:5,market,stock:Object.fromEntries(stockFields.map(key=>[key,$(`s-${key}`).value])),rows:stockRows().map(row=>({name:row.querySelector('.stock-name').value,code:row.querySelector('.stock-code').value,buy:row.querySelector('.buy-price').value,stop:row.querySelector('.stop-price').value,autoStop:row.dataset.autoStop==='true'})),futures:Object.fromEntries(futuresFields.map(key=>[key,$(`f-${key}`).value])),futuresCode:$('f-code').value,futuresName:$('f-title').textContent,futuresDirection:futuresStopMode,futuresAutoStop};
+    return {version:6,market,stock:Object.fromEntries(stockFields.map(key=>[key,$(`s-${key}`).value])),rows:stockRows().map(row=>({name:row.querySelector('.stock-name').value,code:row.querySelector('.stock-code').value,buy:row.querySelector('.buy-price').value,stop:row.querySelector('.stop-price').value,autoStop:row.dataset.autoStop==='true'})),futures:Object.fromEntries(futuresFields.map(key=>[key,$(`f-${key}`).value])),futuresCode:$('f-code').value,futuresName:$('f-title').textContent,futuresDirection:futuresStopMode,futuresAutoStop};
   }
   async function share() {
     const url=new URL(location.href);url.search='';url.hash='state='+encodeURIComponent(JSON.stringify(snapshot()));
@@ -903,8 +925,9 @@
         const state=JSON.parse(decodeURIComponent(location.hash.slice(7)));
         const record=value=>value&&typeof value==='object'&&!Array.isArray(value);
         const scalar=value=>typeof value==='string'||typeof value==='number';
-        if(!record(state)||![1,2,3,4,5].includes(state.version)||!record(state.stock)||!record(state.futures)||!Array.isArray(state.rows)||!state.rows.every(row=>record(row)&&['name','buy','stop'].every(key=>scalar(row[key])))||!futuresFields.every(key=>scalar(state.futures[key]))||!['stock','futures'].includes(state.market)||!['1','100'].includes(String(state.stock.lot))) throw new Error('Invalid state');
+        if(!record(state)||![1,2,3,4,5,6].includes(state.version)||!record(state.stock)||!record(state.futures)||!Array.isArray(state.rows)||!state.rows.every(row=>record(row)&&['name','buy','stop'].every(key=>scalar(row[key])))||!futuresFields.every(key=>scalar(state.futures[key]))||!['stock','futures'].includes(state.market)||!['1','100'].includes(String(state.stock.lot))) throw new Error('Invalid state');
         if(state.version===1) state.stock['open-time']=currentDateTime();
+        if(state.version<6)state.stock.risk='2';
         if(state.rows.some(row=>row.code!==undefined&&(typeof row.code!=='string'||row.code.length>24))||(state.futuresCode!==undefined&&(typeof state.futuresCode!=='string'||state.futuresCode.length>24))||(state.futuresName!==undefined&&(typeof state.futuresName!=='string'||state.futuresName.length>80))||(state.futuresDirection!==undefined&&!['','long','short'].includes(state.futuresDirection))||(state.futuresAutoStop!==undefined&&typeof state.futuresAutoStop!=='boolean')) throw new Error('Invalid quote code');
         if(state.rows.some(row=>row.autoStop!==undefined&&typeof row.autoStop!=='boolean')) throw new Error('Invalid stop setting');
         if(!stockFields.every(key=>scalar(state.stock[key]))) throw new Error('Invalid stock settings');
@@ -915,7 +938,7 @@
         if(state.futuresName&&state.futuresCode)setFutureIdentity($('f-quote-box'),state.futuresCode,state.futuresName);
         futuresStopMode=state.futuresDirection??'';futuresAutoStop=state.futuresAutoStop===true&&Boolean(futuresStopMode);renderFuturesStopMode();
         $('stock-rows').replaceChildren();rowSequence=0;state.rows.forEach(createStock);switchMarket(state.market);
-        if(state.version<5) toast('旧链接已载入：比例表示买入资金占比，股数已按相同止损风险重新计算，请核对。');
+        if(state.version<6) toast('旧链接已载入：现按账户风险预算计算，风险比例默认设为 2%，请核对仓位。');
       } else {
         // Accept parameter links made by the original futures calculator.
         const params=new URLSearchParams(location.search);
@@ -927,7 +950,7 @@
   function exportStocks() {
     if(!calculateStocks()) {toast('请先补全或修正股票参数，再导出结果。');return;}
     const date=$('s-open-time').value.replace('T',' ');
-    const csvRows=[['股票仓位与止损风险计算表'],[],['账户设置'],['开仓计划时间',date],['账户总资金',$('s-balance').value],['计划买入资金比例',percent(number($('s-allocation')))],['最小交易单位',$('s-lot').value+' 股'],[],['结果汇总']];
+    const csvRows=[['股票仓位与止损风险计算表'],[],['账户设置'],['开仓计划时间',date],['账户总资金',$('s-balance').value],['账户总风险比例（设定）',percent(number($('s-risk')))],['最小交易单位',$('s-lot').value+' 股'],[],['结果汇总']];
     document.querySelectorAll('#stock-buy-results .metric').forEach(row=>csvRows.push([row.querySelector('span').textContent,row.querySelector('strong').textContent]));
     if($('stock-buy-warning').textContent) csvRows.push(['计算提示',$('stock-buy-warning').textContent]);
     csvRows.push([],['开仓计划时间','股票或基金名称','股票或基金代码','数量单位','买入价格','止损价格','止损幅度','理论分配资金','目标止损亏损','理论数量','实际可买数量','实际买入金额','剩余买入资金','预计止损亏损','账户风险占比']);
@@ -974,6 +997,9 @@
   });
   bindFutureSearch($('f-quote-box'),fillFutureQuote);
   window.addEventListener('hashchange',loadLink);
+  window.addEventListener('resize',fitStockQuantities);
+  if(window.ResizeObserver){let previousWidth=-1;new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!==previousWidth){previousWidth=width;fitStockQuantities();}}).observe($('stock-buy-grid'));}
+  document.fonts?.ready.then(fitStockQuantities);
   resetStocks();resetFutures();loadLink();
 })();
 </script>

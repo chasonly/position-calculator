@@ -13,9 +13,11 @@
 
 ## Android 版
 
-当前源码版本为 **1.4.1**，支持 Android 8.0 及以上。支持本地自动保存、原生行情请求、系统分享与 CSV 导出。
+当前源码版本为 **1.4.2**，支持 Android 8.0 及以上。支持本地自动保存、原生行情请求、系统分享与 CSV 导出。
 
-[下载 v1.4.1 APK](https://github.com/chasonly/position-calculator/releases/download/v1.4.1/position-calculator-1.4.1-release.apk) · [版本说明与校验文件](https://github.com/chasonly/position-calculator/releases/tag/v1.4.1)
+[下载 v1.4.2 APK](https://github.com/chasonly/position-calculator/releases/download/v1.4.2/position-calculator-1.4.2-release.apk) · [版本说明与校验文件](https://github.com/chasonly/position-calculator/releases/tag/v1.4.2)
+
+1.4.2 按账户总风险比例（默认 2%）均分股票止损预算，再按止损距离反推股数；现金不足时等比例缩减。新增每只股票的资金占比及账户止损风险显示，并优化数量的单行缩放。升级时保留原有股票、价格及期货设置，旧版股票资金比例会迁移为默认 2% 的风险比例。
 
 构建与实现说明见 [Android 项目说明](android-app/README.md)。本仓库不包含预编译 APK、Android SDK 或私有签名材料。
 构建需要自行准备 JDK 和 Android SDK，并按 `android-app/build.ps1` 使用的路径放置工具。

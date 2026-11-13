@@ -78,16 +78,16 @@ if (-not (Test-Path $keystore)) {
     Run-Tool $keytool @('-genkeypair','-keystore',$keystore,'-storetype','PKCS12','-storepass:file',$passwordFile,'-alias','position-calculator','-keyalg','RSA','-keysize','3072','-validity','10000','-dname','CN=Position Calculator, OU=Personal Apps, O=Columbus, C=CN')
 }
 if (-not (Test-Path $passwordFile)) { throw 'Signing password missing. Restore signing/keystore-password.txt.' }
-$apk = Join-Path $dist ("position-calculator-1.4.1-$flavor.apk")
+$apk = Join-Path $dist ("position-calculator-1.4.2-$flavor.apk")
 $apksigner = Join-Path $buildTools 'lib\apksigner.jar'
 Run-Tool $java @('-jar',$apksigner,'sign','--ks',$keystore,'--ks-key-alias','position-calculator','--ks-pass',"file:$passwordFile",'--v4-signing-enabled','false','--out',$apk,$aligned)
 Run-Tool $java @('-jar',$apksigner,'verify','--verbose',$apk)
 Run-Tool (Join-Path $buildTools 'zipalign.exe') @('-c','4',$apk)
 if (-not $DebugBuild) {
-    $friendlyApk = Join-Path $workspace '仓位计算器-v1.4.1.apk'
+    $friendlyApk = Join-Path $workspace '仓位计算器-v1.4.2.apk'
     Copy-Item -LiteralPath $apk -Destination $friendlyApk -Force
     $hash = (Get-FileHash -LiteralPath $friendlyApk -Algorithm SHA256).Hash
-    [IO.File]::WriteAllText((Join-Path $dist 'SHA256.txt'),"$hash  position-calculator-1.4.1-release.apk`n",$utf8)
+    [IO.File]::WriteAllText((Join-Path $dist 'SHA256.txt'),"$hash  position-calculator-1.4.2-release.apk`n",$utf8)
     Write-Output "Installable APK: $friendlyApk"
 }
 Write-Output "Build complete: $apk"
